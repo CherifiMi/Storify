@@ -47,8 +47,6 @@ fun App(viewModel: MainViewModel = koinInject()) {
         LayoutDirection.Ltr
     }
 
-    var showSideBar by remember{mutableStateOf(false)}
-
     CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
         RPTSTheme {
             Row(Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
