@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.Serializable
 import androidx.compose.runtime.State
+import androidx.compose.ui.graphics.ImageBitmap
 import core.model.Item
 import core.util.update
 import domain.MongoDBService
@@ -86,6 +87,9 @@ data class AppState(
     val lang: String = "en",//ar
     val calc: String = "single",//whole
     val grid: String = "table",//grid
+
+
+    val image: ImageBitmap? = null,//grid
 )
 
 sealed class AppEvent {
@@ -173,6 +177,10 @@ class MainViewModel {
             }
             AppEvent.FlipTheme -> _state.update { copy(theme = if (state.value.theme == "dark") "light" else "dark") }
         }
+    }
+
+    fun updateImage(toComposeImageBitmap: ImageBitmap) {
+        _state.update { copy(image = toComposeImageBitmap) }
     }
 }
 

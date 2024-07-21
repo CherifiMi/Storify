@@ -1,15 +1,12 @@
 package org.example.storify
 
+
 import App
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import core.di.appModule
-import org.koin.core.context.GlobalContext
-import android.app.Application
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -27,6 +24,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -35,11 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import core.di.appModule
 import core.theme.RPTSTheme
-import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.compose.koinInject
 import org.koin.core.context.startKoin
@@ -50,10 +49,7 @@ import storify.MainViewModel
 import storify.Strings.localized
 import storify.components.AddItemDialog
 import storify.components.ItemGrid
-import storify.components.ItemTable
-import storify.components.SearchBar
 import storify.components.SideBar
-import storify.components.TotalCards
 
 
 class MyApp() : Application() {
@@ -77,7 +73,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AndroidApp()
+            App()
         }
     }
 }
@@ -166,3 +162,4 @@ fun AndroidApp(viewModel: MainViewModel = koinInject()) {
 fun AppAndroidPreview() {
     AndroidApp()
 }
+
