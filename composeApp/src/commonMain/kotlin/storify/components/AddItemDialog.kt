@@ -1,5 +1,6 @@
 package storify.components
 
+import ImagePicker
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,22 +18,44 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toAwtImage
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import core.model.Item
-import storify.Strings.localized
+import data.Strings.localized
+import org.koin.compose.koinInject
+import storify.MainViewModel
+import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
 
 @Composable
-fun AddItemDialog(onDismiss: () -> Unit, onSave: (Item) -> Unit) {
+fun AddItemDialog(
+    viewModel: MainViewModel = koinInject(),
+    onDismiss: () -> Unit,
+    onSave: (Item) -> Unit
+) {
+
+    val state = viewModel.state.value
+
     var name by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
     var wholePrice by remember { mutableStateOf("") }
     var sellingPrice by remember { mutableStateOf("") }
-    var expirationDate by remember { mutableStateOf("") }
+
+    var expirationDateDay by remember { mutableStateOf("") }
+    var expirationDateMonth by remember { mutableStateOf("") }
+    var expirationDateYear by remember { mutableStateOf("") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(elevation = 8.dp) {
             Column(modifier = Modifier.padding(16.dp)) {
+
+                ImagePicker(viewModel)
+
                 Text("Add New Item".localized, style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
@@ -51,10 +74,24 @@ fun AddItemDialog(onDismiss: () -> Unit, onSave: (Item) -> Unit) {
                     value = sellingPrice,
                     onValueChange = { sellingPrice = it },
                     label = { Text("Selling price".localized) })
-                OutlinedTextField(
-                    value = expirationDate,
-                    onValueChange = { expirationDate = it },
-                    label = { Text("Expiration date".localized) })
+                Row(Modifier.width(280.dp)) {
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        value = expirationDateDay,
+                        onValueChange = { expirationDateDay = it },
+                        label = { Text("Day".localized) })
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        value = expirationDateMonth,
+                        onValueChange = { expirationDateMonth = it },
+                        label = { Text("Month".localized) })
+                    OutlinedTextField(
+                        modifier = Modifier.weight(1f),
+                        value = expirationDateYear,
+                        onValueChange = { expirationDateYear = it },
+                        label = { Text("Year".localized) })
+                }
+
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
                     Button(onClick = onDismiss) {
@@ -64,12 +101,13 @@ fun AddItemDialog(onDismiss: () -> Unit, onSave: (Item) -> Unit) {
                     Button(onClick = {
                         val item = Item(
                             name = name,
+                            image = state.image.convert(),
                             quantity = quantity.toIntOrNull() ?: 0,
                             wholePrice = wholePrice.toDoubleOrNull() ?: 0.0,
                             sellingPrice = sellingPrice.toDoubleOrNull() ?: 0.0,
                             profit = (sellingPrice.toDoubleOrNull()
                                 ?: 0.0) - (wholePrice.toDoubleOrNull() ?: 0.0),
-                            expirationDate = expirationDate
+                            expirationDate = "$expirationDateDay/$expirationDateMonth/$expirationDateYear"
                         )
                         onSave(item)
                         onDismiss()
@@ -81,3 +119,40 @@ fun AddItemDialog(onDismiss: () -> Unit, onSave: (Item) -> Unit) {
         }
     }
 }
+
+fun ImageBitmap?.convert(): ByteArray {
+    val bufferedImage = BufferedImage(
+        this!!.width,
+        height,
+        BufferedImage.TYPE_INT_ARGB
+    )
+
+    // Copy the ImageBitmap to BufferedImage
+    val bitmap = toAwtImage()
+    bufferedImage.graphics.drawImage(bitmap, 0, 0, null)
+
+    // Convert BufferedImage to ByteArray
+    val outputStream = ByteArrayOutputStream()
+    ImageIO.write(bufferedImage, "png", outputStream)
+
+    println(outputStream.toByteArray().toString())
+
+    return outputStream.toByteArray()
+}
+
+
+fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
+    return try {
+        // Convert ByteArray to BufferedImage
+        val inputStream = ByteArrayInputStream(this)
+        val bufferedImage: BufferedImage = ImageIO.read(inputStream)
+
+        // Convert BufferedImage to ImageBitmap
+        bufferedImage.toComposeImageBitmap()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+

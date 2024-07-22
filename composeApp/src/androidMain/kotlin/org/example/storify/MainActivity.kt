@@ -46,17 +46,15 @@ import org.koin.dsl.binds
 import org.koin.dsl.module
 import storify.AppEvent
 import storify.MainViewModel
-import storify.Strings.localized
+import data.Strings.localized
 import storify.components.AddItemDialog
 import storify.components.ItemGrid
 import storify.components.SideBar
 
 
 class MyApp() : Application() {
-
     override fun onCreate() {
         super.onCreate()
-
 
         startKoin {
             androidLogger()

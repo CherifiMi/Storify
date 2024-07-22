@@ -27,7 +27,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import storify.AppEvent
 import storify.MainViewModel
-import storify.Strings.localized
+import data.Strings.localized
 import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_search
 

@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import storify.MainViewModel
-import storify.Strings.localized
+import data.Strings.localized
 import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_cart2
 import storify.composeapp.generated.resources.ic_profit
@@ -31,9 +31,7 @@ import storify.composeapp.generated.resources.ic_truck
 
 @Composable
 fun TotalCards(viewModel: MainViewModel = koinInject()) {
-
     val state = viewModel.state.value
-    state
 
     Row(Modifier.fillMaxWidth()) {
         Row(

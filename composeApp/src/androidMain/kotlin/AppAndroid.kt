@@ -1,4 +1,6 @@
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -13,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import storify.MainViewModel
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.nio.ByteBuffer
 
 @Composable
 actual fun ImagePicker(viewModel: MainViewModel) {
@@ -22,7 +27,8 @@ actual fun ImagePicker(viewModel: MainViewModel) {
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
             uri?.let {
-                val bitmap = BitmapFactory.decodeStream(context.contentResolver.openInputStream(uri))
+                val bitmap =
+                    BitmapFactory.decodeStream(context.contentResolver.openInputStream(uri))
                 viewModel.updateImage(bitmap.asImageBitmap())
             }
         }
@@ -44,3 +50,5 @@ actual fun ImagePicker(viewModel: MainViewModel) {
         }
     }
 }
+
+

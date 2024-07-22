@@ -1,9 +1,8 @@
 package core.model
 
+import androidx.compose.ui.graphics.ImageBitmap
 import com.google.gson.Gson
-import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
-import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 import kotlinx.serialization.Serializable
 

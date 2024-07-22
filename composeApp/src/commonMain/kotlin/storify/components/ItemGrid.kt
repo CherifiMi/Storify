@@ -1,10 +1,12 @@
 package storify.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,6 +23,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,8 +34,9 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import storify.AppEvent
 import storify.MainViewModel
-import storify.Strings.localized
+import data.Strings.localized
 import storify.composeapp.generated.resources.Res
+import storify.composeapp.generated.resources.ic_box
 import storify.composeapp.generated.resources.ic_edit
 import storify.composeapp.generated.resources.ic_min
 import storify.composeapp.generated.resources.ic_plus
@@ -83,6 +87,24 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
 
     Card(modifier = Modifier.padding(8.dp), backgroundColor = MaterialTheme.colors.background){
         Column(Modifier.padding(vertical = 16.dp)){
+
+            Card(Modifier.fillMaxWidth().aspectRatio(2f)) {
+                item.image?.byteArrayToImageBitmap()?.let {
+                    Image(
+                        bitmap = it,
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp).padding(end = 8.dp),
+                        contentScale = ContentScale.Crop,  // Add this line to crop the image
+                    )
+                } ?: Image(
+                    modifier = Modifier.size(30.dp).padding(end = 8.dp),
+                    painter = painterResource(Res.drawable.ic_box),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop
+                )
+            }
+
+
             LableCard(titles[0],item.name)
             LableCard(titles[1],item.quantity.toString())
             LableCard(titles[2],item.wholePrice.toString())

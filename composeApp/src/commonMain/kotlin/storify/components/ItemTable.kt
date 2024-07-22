@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,7 +34,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import storify.AppEvent
 import storify.MainViewModel
-import storify.Strings.localized
+import data.Strings.localized
 import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_box
 import storify.composeapp.generated.resources.ic_edit
@@ -104,14 +103,20 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
             items(state.items.sortItems(state.filer)) { item ->
                 if (item.name.contains(state.searchText)) {
                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
-                        Row( modifier = Modifier.weight(1f)){
+                        Row(modifier = Modifier.weight(1f)) {
 
-                            if (item.image==null) {
-                                Image(modifier = Modifier.size(30.dp).padding(end = 8.dp), painter = painterResource(Res.drawable.ic_box), contentDescription = null)
-                            }/*else{
-                                //val imageBitmap = byteArrayToImageBitmap(item.image)
-                                Image(bitmap = imageBitmap, contentDescription = null, modifier = Modifier.size(30.dp).padding(end = 8.dp), )
-                            }*/
+                            item.image?.byteArrayToImageBitmap()?.let {
+                                Image(
+                                    bitmap = it,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(30.dp).padding(end = 8.dp),
+                                )
+                            } ?: Image(
+                                modifier = Modifier.size(30.dp).padding(end = 8.dp),
+                                painter = painterResource(Res.drawable.ic_box),
+                                contentDescription = null
+                            )
+
                             Text(
                                 fontSize = 14.sp,
                                 text = item.name,
@@ -130,21 +135,24 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                         )
                         Text(
                             fontSize = 14.sp,
-                            text = if (state.calc == "whole")item.wholePrice.times(item.quantity).toString() else item.wholePrice.toString(),
+                            text = if (state.calc == "whole") item.wholePrice.times(item.quantity)
+                                .toString() else item.wholePrice.toString(),
                             modifier = Modifier.weight(1f),
                             overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colors.onBackground
                         )
                         Text(
                             fontSize = 14.sp,
-                            text = if (state.calc == "whole")item.sellingPrice.times(item.quantity).toString() else item.sellingPrice.toString(),
+                            text = if (state.calc == "whole") item.sellingPrice.times(item.quantity)
+                                .toString() else item.sellingPrice.toString(),
                             modifier = Modifier.weight(1f),
                             overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colors.onBackground
                         )
                         Text(
                             fontSize = 14.sp,
-                            text = if (state.calc == "whole")item.profit.times(item.quantity).toString() else item.profit.toString(),
+                            text = if (state.calc == "whole") item.profit.times(item.quantity)
+                                .toString() else item.profit.toString(),
                             modifier = Modifier.weight(1f),
                             overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colors.onBackground
@@ -210,11 +218,13 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
             }
         }
 
-        Column (Modifier.fillMaxSize(), verticalArrangement = Arrangement.Bottom, horizontalAlignment = Alignment.CenterHorizontally){
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             AddButton()
         }
 
     }
 }
-
-//expect fun byteArrayToImageBitmap(byteArray: ByteArray): ImageBitmap
