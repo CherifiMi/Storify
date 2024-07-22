@@ -86,7 +86,7 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
     )
 
     Card(modifier = Modifier.padding(8.dp), backgroundColor = MaterialTheme.colors.background){
-        Column(Modifier.padding(vertical = 16.dp)){
+        Column(Modifier.padding(bottom = 16.dp)){
 
             Card(Modifier.fillMaxWidth().aspectRatio(2f)) {
                 item.image?.byteArrayToImageBitmap()?.let {

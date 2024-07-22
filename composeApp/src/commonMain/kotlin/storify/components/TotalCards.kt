@@ -51,7 +51,7 @@ fun TotalCards(viewModel: MainViewModel = koinInject()) {
                     fontWeight = FontWeight.Normal
                 )
                 Text(
-                    "1000,00DZD",
+                    state.items.sumOf { it.wholePrice * it.quantity }.toInt().toString()+" DZD",
                     color = MaterialTheme.colors.surface,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Light
@@ -80,7 +80,7 @@ fun TotalCards(viewModel: MainViewModel = koinInject()) {
                     fontWeight = FontWeight.Normal
                 )
                 Text(
-                    "1000,00DZD",
+                    state.items.sumOf { it.sellingPrice * it.quantity }.toInt().toString()+" DZD",
                     color = MaterialTheme.colors.onBackground,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Light
@@ -109,7 +109,7 @@ fun TotalCards(viewModel: MainViewModel = koinInject()) {
                     fontWeight = FontWeight.Normal
                 )
                 Text(
-                    "1000,00DZD",
+                    state.items.sumOf { it.profit * it.quantity }.toInt().toString()+" DZD",
                     color = MaterialTheme.colors.onBackground,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Light

@@ -13,6 +13,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import core.model.Item
 import data.Strings.localized
+import org.bson.types.ObjectId
 import org.koin.compose.koinInject
 import storify.MainViewModel
 import java.awt.image.BufferedImage
@@ -38,17 +40,21 @@ fun AddItemDialog(
     onDismiss: () -> Unit,
     onSave: (Item) -> Unit
 ) {
-
     val state = viewModel.state.value
 
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
-    var wholePrice by remember { mutableStateOf("") }
-    var sellingPrice by remember { mutableStateOf("") }
+    LaunchedEffect(Unit){
 
-    var expirationDateDay by remember { mutableStateOf("") }
-    var expirationDateMonth by remember { mutableStateOf("") }
-    var expirationDateYear by remember { mutableStateOf("") }
+    }
+
+    var id by remember { mutableStateOf(state.selectedItem?.id ?: "") }
+    var name by remember { mutableStateOf(state.selectedItem?.name ?:"") }
+    var quantity by remember { mutableStateOf(state.selectedItem?.quantity?.toString() ?:"") }
+    var wholePrice by remember { mutableStateOf(state.selectedItem?.wholePrice?.toString() ?:"") }
+    var sellingPrice by remember { mutableStateOf(state.selectedItem?.sellingPrice?.toString() ?:"") }
+
+    var expirationDateDay by remember { mutableStateOf(state.selectedItem?.expirationDate?.split("/")?.getOrNull(0) ?:"") }
+    var expirationDateMonth by remember { mutableStateOf(state.selectedItem?.expirationDate?.split("/")?.getOrNull(1)  ?:"") }
+    var expirationDateYear by remember { mutableStateOf(state.selectedItem?.expirationDate?.split("/")?.getOrNull(2)  ?:"") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(elevation = 8.dp) {
@@ -100,6 +106,7 @@ fun AddItemDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
                         val item = Item(
+                            id = id.ifEmpty { ObjectId().toString() },
                             name = name,
                             image = state.image.convert(),
                             quantity = quantity.toIntOrNull() ?: 0,
@@ -120,9 +127,12 @@ fun AddItemDialog(
     }
 }
 
-fun ImageBitmap?.convert(): ByteArray {
+fun ImageBitmap?.convert(): ByteArray? {
+    if (this == null) {
+        return null
+    }
     val bufferedImage = BufferedImage(
-        this!!.width,
+        width,
         height,
         BufferedImage.TYPE_INT_ARGB
     )

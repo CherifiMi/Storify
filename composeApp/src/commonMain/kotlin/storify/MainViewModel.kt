@@ -13,6 +13,7 @@ import core.util.update
 import data.Strings
 import domain.MongoDBService
 import kotlinx.coroutines.launch
+import storify.components.byteArrayToImageBitmap
 
 
 @Serializable
@@ -29,6 +30,10 @@ data class AppState(
 
 
     val image: ImageBitmap? = null,
+
+    val selectedItem: Item? = null,
+
+    val showSplashScreen: Boolean = true,
 )
 
 sealed class AppEvent {
@@ -42,6 +47,8 @@ sealed class AppEvent {
     data object FlipLang : AppEvent()
     data object FlipGrid : AppEvent()
     data object FlipCalc : AppEvent()
+
+    data class EditItem(val item: Item) : AppEvent()
 }
 
 
@@ -55,7 +62,7 @@ class MainViewModel {
     init {
         viewModelScope.launch {
             db.getItems().let {
-                _state.update { copy(items = it) }
+                _state.update { copy(items = it, showSplashScreen = false) }
             }
         }
     }
@@ -66,7 +73,7 @@ class MainViewModel {
                 viewModelScope.launch {
                     db.insertItem(event.item)
                     db.getItems().let {
-                        _state.update { copy(items = it) }
+                        _state.update { copy(items = it, selectedItem = null) }
                     }
                 }
             }
@@ -97,6 +104,9 @@ class MainViewModel {
                 Strings.setLanguage(state.value.lang)
             }
             AppEvent.FlipTheme -> _state.update { copy(theme = if (state.value.theme == "dark") "light" else "dark") }
+            is AppEvent.EditItem -> {
+                _state.update { copy(selectedItem =  event.item, image = event.item.image?.byteArrayToImageBitmap(), showAddItem = true) }
+            }
         }
     }
 

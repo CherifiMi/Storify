@@ -1,5 +1,6 @@
 @file:Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Box
@@ -7,11 +8,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -21,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import core.theme.RPTSTheme
 import data.Strings.localized
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.koinInject
 import storify.AppEvent
@@ -31,6 +36,9 @@ import storify.components.ItemTable
 import storify.components.SearchBar
 import storify.components.SideBar
 import storify.components.TotalCards
+import storify.composeapp.generated.resources.Res
+import storify.composeapp.generated.resources.ic_cubebox
+import java.awt.SplashScreen
 import java.io.File
 import java.io.FileInputStream
 import java.net.URI
@@ -40,6 +48,17 @@ import javax.imageio.ImageIO
 @Composable
 expect fun ImagePicker(viewModel: MainViewModel)
 
+@Composable
+fun SplashScreen() {
+    Box(Modifier.fillMaxSize().background(MaterialTheme.colors.background), contentAlignment = Alignment.Center){
+        Icon(
+            modifier = Modifier.padding(vertical = 240.dp).size(48.dp),
+            tint = MaterialTheme.colors.primary,
+            painter = painterResource(Res.drawable.ic_cubebox),
+            contentDescription = null
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -95,6 +114,9 @@ fun App(viewModel: MainViewModel = koinInject()) {
                         viewModel.onEvent(AppEvent.AddItem(item))
                     }
                 )
+            }
+            if (state.showSplashScreen){
+                SplashScreen()
             }
 
         }

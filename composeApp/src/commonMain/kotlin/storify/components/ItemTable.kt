@@ -95,7 +95,7 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                             )
                         }
                     }
-                    Row(modifier = Modifier.weight(1f)) {}
+                    Row(modifier = Modifier.weight(.5f)) {}
                 }
             }
 
@@ -165,12 +165,12 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                             color = MaterialTheme.colors.onBackground
                         )
                         Row(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(.5f),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
 
-                            Card(
+                            /*Card(
                                 modifier = Modifier.padding(bottom = 16.dp).size(32.dp),
                                 onClick = { viewModel.onEvent(AppEvent.FlipGrid) },
                                 backgroundColor = MaterialTheme.colors.secondary
@@ -194,11 +194,11 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                                     contentDescription = null,
                                     modifier = Modifier.padding(4.dp)
                                 )
-                            }
+                            }*/
                             Spacer(Modifier.width(16.dp))
                             Card(
                                 modifier = Modifier.padding(bottom = 16.dp).size(32.dp),
-                                onClick = { viewModel.onEvent(AppEvent.FlipGrid) },
+                                onClick = { viewModel.onEvent(AppEvent.EditItem(item)) },
                                 backgroundColor = MaterialTheme.colors.secondary
                             ) {
                                 Icon(
