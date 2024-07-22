@@ -7,6 +7,7 @@ import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import core.di.appModule
@@ -23,6 +24,7 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "storify",
+        icon = painterResource("drawable/ic_app.png")
     ) {
         App()
     }
