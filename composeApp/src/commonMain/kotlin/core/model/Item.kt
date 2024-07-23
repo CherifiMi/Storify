@@ -1,40 +1,34 @@
 package core.model
 
-import androidx.compose.ui.graphics.ImageBitmap
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
-import org.bson.types.ObjectId
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import org.bson.types.ObjectId
 
 
 @Serializable
 data class Item(
-    @SerializedName("id")
-    val id: String = ObjectId().toString(),
-    @SerializedName("name")
+    val _id: String = ObjectId().toString(),
     val name: String,
-    @SerializedName("quantity")
     val quantity: Int,
-    @SerializedName("wholePrice")
     val wholePrice: Double,
-    @SerializedName("sellingPrice")
     val sellingPrice: Double,
-    @SerializedName("profit")
     val profit: Double,
-    @SerializedName("expirationDate")
     val expirationDate: String,
-    @SerializedName("image")
     val image: ByteArray? = null
 )
 
-object GsonService {
-    private val gson = Gson()
+object SerializationService {
+    private val json = Json {
+        encodeDefaults = true
+        ignoreUnknownKeys = true
+    }
 
     fun jsonStringToItem(jsonString: String): Item {
-        return gson.fromJson(jsonString, Item::class.java)
+        return json.decodeFromString(jsonString)
     }
 
     fun itemTOJson(item: Item): String {
-        return gson.toJson(item)
+        return json.encodeToString(item)
     }
 }

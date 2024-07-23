@@ -23,8 +23,8 @@ data class AppState(
     val filer: String = "+Name",
     val searchText: String = "",
 
-    val theme: String = "light",//dark
-    val lang: String = "en",//ar
+    val theme: String = "dark",//"light",//dark
+    val lang: String = "en",//"en",//ar
     val calc: String = "single",//whole
     val grid: String = "table",//grid
 

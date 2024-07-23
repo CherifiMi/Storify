@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-    kotlin("plugin.serialization") version "1.8.10"
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 kotlin {
@@ -39,7 +39,7 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
 
             //gson
-            implementation("com.google.code.gson:gson:2.10.1")
+            //implementation("com.google.code.gson:gson:2.10.1")
 
             //okhttp
             implementation("com.squareup.okhttp3:okhttp:4.10.0")
@@ -56,7 +56,8 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.6.4")
 
             // serialization
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -109,8 +110,11 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "org.example.storify"
+            packageName = "storify"
             packageVersion = "1.0.0"
+            windows {
+                iconFile.set(project.file("src/main/resources/ic_app.ico"))
+            }
         }
     }
 }

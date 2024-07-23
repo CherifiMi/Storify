@@ -1,22 +1,17 @@
 package domain
 
-import com.google.gson.Gson
-import core.model.GsonService
 import core.model.Item
+import core.model.SerializationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.bson.types.ObjectId
 import java.io.IOException
 
 object MongoDBService {
@@ -28,9 +23,10 @@ object MongoDBService {
     private val client = OkHttpClient()
 
     suspend fun insertItem(item: Item) {
-        val gson = Gson()
 
-        val jsonBody = gson.toJson(
+        val json = Json { encodeDefaults = true }
+
+        val jsonBody = json.encodeToString(
             mapOf(
                 "collection" to "items",
                 "database" to "storify",
@@ -46,10 +42,7 @@ object MongoDBService {
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Access-Control-Request-Headers", "*")
-            .addHeader(
-                "api-key",
-                "Q0Uk5NInIcjqnurtinXYTlEAQYb6eUBkCf0yXh7vRyBxLUAgPxf6eEqA1sKRk9YG"
-            )
+            .addHeader("api-key", "Q0Uk5NInIcjqnurtinXYTlEAQYb6eUBkCf0yXh7vRyBxLUAgPxf6eEqA1sKRk9YG")
             .build()
 
         withContext(Dispatchers.IO) {
@@ -66,6 +59,39 @@ object MongoDBService {
     }
 
     suspend fun getItems(): List<Item> {
+
+        /*
+curl --location --request POST 'https://eu-central-1.aws.data.mongodb-api.com/app/data-utvnrfx/endpoint/data/v1/action/insertOne' \
+--header 'Content-Type: application/json' \
+--header 'Access-Control-Request-Headers: *' \
+--header 'api-key: Q0Uk5NInIcjqnurtinXYTlEAQYb6eUBkCf0yXh7vRyBxLUAgPxf6eEqA1sKRk9YG' \
+--data-raw '{
+"collection":"items",
+"database":"storify",
+"dataSource":"storify1",
+"document": {
+    "name": "f",
+    "quantity": {"$numberInt":"0"},
+    "wholePrice": {"$numberDouble":"0.0"},
+    "sellingPrice": {"$numberDouble":"0.0"},
+    "profit": {"$numberDouble":"0.0"},
+    "expirationDate": "f"
+}
+}'
+*/
+
+        /*
+        curl --location --request POST 'https://eu-central-1.aws.data.mongodb-api.com/app/data-utvnrfx/endpoint/data/v1/action/find' \
+        --header 'Content-Type: application/json' \
+        --header 'Access-Control-Request-Headers: *' \
+        --header 'api-key: Q0Uk5NInIcjqnurtinXYTlEAQYb6eUBkCf0yXh7vRyBxLUAgPxf6eEqA1sKRk9YG' \
+        --data-raw '{
+        "collection":"items",
+        "database":"storify",
+        "dataSource":"storify1"
+        }'
+        */
+
         val jsonBody = Json.encodeToString(
             mapOf(
                 "collection" to "items",
@@ -74,16 +100,14 @@ object MongoDBService {
             )
         )
 
-        val requestBody = RequestBody.create(
-            "application/json".toMediaTypeOrNull(),
-            jsonBody
-        )
+        val requestBody = /*jsonBody.toRequestBody()*/ jsonBody.toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("$apiUrl/find")
+            .url("https://eu-central-1.aws.data.mongodb-api.com/app/data-utvnrfx/endpoint/data/v1/action/find")
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
-            .addHeader("api-key", apiKey)
+            .addHeader("Access-Control-Request-Headers", "*")
+            .addHeader("api-key", "Q0Uk5NInIcjqnurtinXYTlEAQYb6eUBkCf0yXh7vRyBxLUAgPxf6eEqA1sKRk9YG")
             .build()
 
         return withContext(Dispatchers.IO) {
@@ -94,7 +118,7 @@ object MongoDBService {
 
             val jsonResponse = Json.parseToJsonElement(response.body?.string() ?: "").jsonObject
             val documents = jsonResponse["documents"]?.jsonArray ?: emptyList()
-            documents.map { GsonService.jsonStringToItem(it.toString()) }
+            documents.map { SerializationService.jsonStringToItem(it.toString()) }
         }
     }
 }

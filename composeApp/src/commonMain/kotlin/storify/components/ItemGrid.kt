@@ -76,6 +76,8 @@ fun ItemGrid(viewModel: MainViewModel = koinInject()) {
 @Composable
 fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
 
+    val state = viewModel.state.value
+
     val titles = listOf(
         "Name".localized,
         "Quantity".localized,
@@ -105,11 +107,12 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
             }
 
 
+
             LableCard(titles[0],item.name)
             LableCard(titles[1],item.quantity.toString())
-            LableCard(titles[2],item.wholePrice.toString())
-            LableCard(titles[3],item.sellingPrice.toString())
-            LableCard(titles[4],item.profit.toString())
+            LableCard(titles[2],if (state.calc == "whole") item.wholePrice.times(item.quantity).toString() else item.wholePrice.toString())
+            LableCard(titles[3],if (state.calc == "whole") item.sellingPrice.times(item.quantity).toString() else item.sellingPrice.toString())
+            LableCard(titles[4],if (state.calc == "whole") item.profit.times(item.quantity).toString() else item.profit.toString())
             LableCard(titles[5],item.expirationDate)
 
             Spacer(Modifier.width(8.dp))
@@ -119,7 +122,7 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Card(
+                /*Card(
                     modifier = Modifier.size(32.dp),
                     onClick = { viewModel.onEvent(AppEvent.FlipGrid) },
                     backgroundColor = MaterialTheme.colors.secondary
@@ -143,11 +146,11 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
                         contentDescription = null,
                         modifier = Modifier.padding(4.dp)
                     )
-                }
+                }*/
                 Spacer(Modifier.width(16.dp))
                 Card(
                     modifier = Modifier.size(32.dp),
-                    onClick = { viewModel.onEvent(AppEvent.FlipGrid) },
+                    onClick = { viewModel.onEvent(AppEvent.EditItem(item)) },
                     backgroundColor = MaterialTheme.colors.secondary
                 ) {
                     Icon(

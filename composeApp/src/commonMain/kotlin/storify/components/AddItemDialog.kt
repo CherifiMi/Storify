@@ -46,7 +46,7 @@ fun AddItemDialog(
 
     }
 
-    var id by remember { mutableStateOf(state.selectedItem?.id ?: "") }
+    var id by remember { mutableStateOf(state.selectedItem?._id ?: "") }
     var name by remember { mutableStateOf(state.selectedItem?.name ?:"") }
     var quantity by remember { mutableStateOf(state.selectedItem?.quantity?.toString() ?:"") }
     var wholePrice by remember { mutableStateOf(state.selectedItem?.wholePrice?.toString() ?:"") }
@@ -106,14 +106,13 @@ fun AddItemDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
                         val item = Item(
-                            id = id.ifEmpty { ObjectId().toString() },
+                            _id = id.ifEmpty { ObjectId().toString() },
                             name = name,
                             image = state.image.convert(),
                             quantity = quantity.toIntOrNull() ?: 0,
                             wholePrice = wholePrice.toDoubleOrNull() ?: 0.0,
                             sellingPrice = sellingPrice.toDoubleOrNull() ?: 0.0,
-                            profit = (sellingPrice.toDoubleOrNull()
-                                ?: 0.0) - (wholePrice.toDoubleOrNull() ?: 0.0),
+                            profit = (sellingPrice.toDoubleOrNull() ?: 0.0) - (wholePrice.toDoubleOrNull() ?: 0.0),
                             expirationDate = "$expirationDateDay/$expirationDateMonth/$expirationDateYear"
                         )
                         onSave(item)
