@@ -1,6 +1,9 @@
 package storify.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -23,6 +27,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,14 +53,16 @@ fun ItemGrid(viewModel: MainViewModel = koinInject()) {
     val state = viewModel.state.value
 
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = 260.dp)
+        columns = GridCells.Adaptive(minSize = 160.dp)
     ) {
         items(state.items.sortItems(state.filer)) { item ->
-            GridItemView(item)
+            if (item.name.contains(state.searchText)) {
+                GridItemView(item)
+            }
         }
 
         item{
-            Box(modifier = Modifier.size(100.dp).fillMaxSize().padding(16.dp)){
+            Box(modifier = Modifier.size(160.dp).fillMaxSize().padding(16.dp)){
                 Card(
                     onClick = { viewModel.onEvent(AppEvent.ShowAddItem(true)) },
                     modifier = Modifier.fillMaxSize(), // Ensure it fills the parent
@@ -84,22 +91,22 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
         "Whole price".localized,
         "Selling price".localized,
         "Profit".localized,
-        "Expiration date".localized
+        "Expiration date".localized.split(" ")[0]
     )
 
     Card(modifier = Modifier.padding(8.dp), backgroundColor = MaterialTheme.colors.background){
         Column(Modifier.padding(bottom = 16.dp)){
 
             Card(Modifier.fillMaxWidth().aspectRatio(2f)) {
-                item.image?.byteArrayToImageBitmap()?.let {
+                item.image?.let {/*.byteArrayToImageBitmap()?*/
                     Image(
                         bitmap = it,
                         contentDescription = null,
-                        modifier = Modifier.size(30.dp).padding(end = 8.dp),
+                        modifier = Modifier.size(30.dp).padding(bottom = 8.dp),
                         contentScale = ContentScale.Crop,  // Add this line to crop the image
                     )
                 } ?: Image(
-                    modifier = Modifier.size(30.dp).padding(end = 8.dp),
+                    modifier = Modifier.size(30.dp).padding(bottom = 8.dp),
                     painter = painterResource(Res.drawable.ic_box),
                     contentDescription = null,
                     contentScale = ContentScale.Crop
@@ -113,7 +120,19 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
             LableCard(titles[2],if (state.calc == "whole") item.wholePrice.times(item.quantity).toString() else item.wholePrice.toString())
             LableCard(titles[3],if (state.calc == "whole") item.sellingPrice.times(item.quantity).toString() else item.sellingPrice.toString())
             LableCard(titles[4],if (state.calc == "whole") item.profit.times(item.quantity).toString() else item.profit.toString())
-            LableCard(titles[5],item.expirationDate)
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(Modifier.size(8.dp))
+                Box(
+                    Modifier.size(12.dp)
+                        .background(Color.Transparent, RoundedCornerShape(4.dp)).border(
+                            BorderStroke(3.dp, item.expirationDate.getExpColor()),
+                            RoundedCornerShape(4.dp)
+                        )
+                )
+                LableCard(titles[5],item.expirationDate)
+            }
+
 
             Spacer(Modifier.width(8.dp))
 
@@ -172,19 +191,19 @@ fun LableCard(s: String, name: String) {
     Row {
         Text(
             text = s+": ",
-            fontSize = 16.sp,
+            fontSize = 12.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = liteGray,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(start = 8.dp)
         )
         Text(
             text = name,
-            fontSize = 15.sp,
+            fontSize = 11.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colors.onBackground,
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(start = 8.dp)
         )
     }
 }

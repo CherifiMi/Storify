@@ -1,7 +1,7 @@
 package org.example.storify
 
 
-import App
+import SplashScreen
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
@@ -12,7 +12,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Arrangement.SpaceBetween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,6 +49,7 @@ import storify.MainViewModel
 import data.Strings.localized
 import storify.components.AddItemDialog
 import storify.components.ItemGrid
+import storify.components.SearchBar
 import storify.components.SideBar
 
 
@@ -71,7 +72,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            App()
+            AndroidApp()
         }
     }
 }
@@ -95,69 +96,65 @@ fun AndroidApp(viewModel: MainViewModel = koinInject()) {
 
     CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
         RPTSTheme {
-            Row(
+            Box(
                 Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colors.background)
+                    .swipeable(
+                        state = swipeableState,
+                        anchors = anchors,
+                        orientation = Orientation.Horizontal,
+                        thresholds = { _, _ -> FractionalThreshold(0.5f) }
+                    )
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .swipeable(
-                            state = swipeableState,
-                            anchors = anchors,
-                            orientation = Orientation.Horizontal,
-                            thresholds = { _, _ -> FractionalThreshold(0.5f) }
-                        )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "All items".localized,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = MaterialTheme.colors.onBackground
-                        )
-                        Box(
-                            modifier = Modifier
-                                .padding(top = 16.dp)
-                                .fillMaxSize()
-                                .background(MaterialTheme.colors.surface)
-                                .padding(16.dp)
-                        ) {
-
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.SpaceBetween
+                Row(Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
+                    Column(Modifier.fillMaxSize()) {
+                        SearchBar(show = false)
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Storify".localized,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colors.onBackground
+                            )
+                            Box(
+                                modifier = Modifier.padding(top = 16.dp).fillMaxSize()
+                                    .background(MaterialTheme.colors.surface).padding(16.dp)
                             ) {
-                                ItemGrid()
+                                Column(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = SpaceBetween
+                                ) {
+                                    ItemGrid()
+                                }
                             }
                         }
+
                     }
                 }
-            }
-            if (state.showAddItem) {
-                AddItemDialog(
-                    onDismiss = { viewModel.onEvent(AppEvent.ShowAddItem(false)) },
-                    onSave = { item ->
-                        viewModel.onEvent(AppEvent.AddItem(item))
-                    }
-                )
-            }
-            AnimatedVisibility(
-                visible = isSidebarVisible,
-                enter = slideInHorizontally(initialOffsetX = { it }),
-                exit = slideOutHorizontally(targetOffsetX = { -it })
-            ) {
-                SideBar()
+
+
+
+
+
+                AnimatedVisibility(
+                    visible = isSidebarVisible,
+                    enter = slideInHorizontally(initialOffsetX = { it }),
+                    exit = slideOutHorizontally(targetOffsetX = { -it })
+                ) {
+                    SideBar()
+                }
+                if (state.showAddItem) {
+                    AddItemDialog(
+                        onDismiss = { viewModel.onEvent(AppEvent.ShowAddItem(false)) },
+                        onSave = { item ->
+                            viewModel.onEvent(AppEvent.AddItem(item))
+                        }
+                    )
+                }
+                if (state.showSplashScreen) {
+                    SplashScreen()
+                }
             }
         }
     }
 }
-
-
-@Preview
-@Composable
-fun AppAndroidPreview() {
-    AndroidApp()
-}
-

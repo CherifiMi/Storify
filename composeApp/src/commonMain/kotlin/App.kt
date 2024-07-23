@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -22,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
@@ -32,7 +32,6 @@ import core.theme.RPTSTheme
 import data.Strings.localized
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -59,6 +58,8 @@ import storify.composeapp.generated.resources.ic_cubebox
 
 @Composable
 expect fun ImagePicker(viewModel: MainViewModel)
+expect fun ImageBitmap?.convert(): ByteArray?
+expect fun ByteArray.byteArrayToImageBitmap(): ImageBitmap?
 
 @Composable
 fun SplashScreen() {
@@ -145,7 +146,7 @@ fun App(viewModel: MainViewModel = koinInject()) {
             Row(Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
                 SideBar()
                 Column(Modifier.fillMaxSize()) {
-                    SearchBar()
+                    SearchBar(show = false)
                     TotalCards()
 
                     Column(modifier = Modifier.padding(16.dp)) {

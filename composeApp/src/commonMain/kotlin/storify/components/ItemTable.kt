@@ -114,7 +114,7 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
                         Row(modifier = Modifier.weight(1f)) {
 
-                            item.image?.byteArrayToImageBitmap()?.let {
+                            item.image?.let {//.byteArrayToImageBitmap()?
                                 Image(
                                     bitmap = it,
                                     contentDescription = null,

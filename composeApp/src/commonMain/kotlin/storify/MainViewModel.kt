@@ -13,7 +13,7 @@ import core.util.update
 import data.Strings
 import domain.MongoDBService
 import kotlinx.coroutines.launch
-import storify.components.byteArrayToImageBitmap
+import org.bson.types.ObjectId
 
 
 @Serializable
@@ -71,7 +71,11 @@ class MainViewModel {
         when (event) {
             is AppEvent.AddItem -> {
                 viewModelScope.launch {
-                    db.insertItem(event.item)
+                    if (event.item._id.isEmpty()){
+                        db.insertItem(event.item.copy(_id = ObjectId().toString()))
+                    }else{
+                        db.replaceItem(event.item)
+                    }
                     db.getItems().let {
                         _state.update { copy(items = it, selectedItem = null) }
                     }
@@ -104,8 +108,8 @@ class MainViewModel {
                 Strings.setLanguage(state.value.lang)
             }
             AppEvent.FlipTheme -> _state.update { copy(theme = if (state.value.theme == "dark") "light" else "dark") }
-            is AppEvent.EditItem -> {
-                _state.update { copy(selectedItem =  event.item, image = event.item.image?.byteArrayToImageBitmap(), showAddItem = true) }
+            is AppEvent.EditItem -> {//
+                _state.update { copy(selectedItem =  event.item, image = event.item.image, showAddItem = true) }
             }
         }
     }

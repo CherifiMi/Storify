@@ -32,7 +32,7 @@ import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_search
 
 @Composable
-fun SearchBar(viewModel: MainViewModel = koinInject()) {
+fun SearchBar(viewModel: MainViewModel = koinInject(), show: Boolean = true) {
 
     val state = viewModel.state.value
 
@@ -40,13 +40,15 @@ fun SearchBar(viewModel: MainViewModel = koinInject()) {
         Modifier.padding(horizontal = 16.dp, vertical = 16.dp).fillMaxWidth().wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            "Storify".localized,
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colors.onBackground
-        )
-        Spacer(modifier = Modifier.weight(2f))
+        if (show){
+            Text(
+                "Storify".localized,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colors.onBackground
+            )
+            Spacer(modifier = Modifier.weight(2f))
+        }
 
 
         TextField(

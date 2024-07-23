@@ -19,20 +19,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toAwtImage
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import core.model.Item
 import data.Strings.localized
-import org.bson.types.ObjectId
 import org.koin.compose.koinInject
 import storify.MainViewModel
-import java.awt.image.BufferedImage
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import javax.imageio.ImageIO
 
 @Composable
 fun AddItemDialog(
@@ -105,10 +97,11 @@ fun AddItemDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
+
                         val item = Item(
-                            _id = id.ifEmpty { ObjectId().toString() },
+                            _id = id,
                             name = name,
-                            image = state.image.convert(),
+                            image = state.image/*.convert()*/,
                             quantity = quantity.toIntOrNull() ?: 0,
                             wholePrice = wholePrice.toDoubleOrNull() ?: 0.0,
                             sellingPrice = sellingPrice.toDoubleOrNull() ?: 0.0,
@@ -125,43 +118,3 @@ fun AddItemDialog(
         }
     }
 }
-
-fun ImageBitmap?.convert(): ByteArray? {
-    if (this == null) {
-        return null
-    }
-    val bufferedImage = BufferedImage(
-        width,
-        height,
-        BufferedImage.TYPE_INT_ARGB
-    )
-
-    // Copy the ImageBitmap to BufferedImage
-    val bitmap = toAwtImage()
-    bufferedImage.graphics.drawImage(bitmap, 0, 0, null)
-
-    // Convert BufferedImage to ByteArray
-    val outputStream = ByteArrayOutputStream()
-    ImageIO.write(bufferedImage, "png", outputStream)
-
-    println(outputStream.toByteArray().toString())
-
-    return outputStream.toByteArray()
-}
-
-
-fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
-    return try {
-        // Convert ByteArray to BufferedImage
-        val inputStream = ByteArrayInputStream(this)
-        val bufferedImage: BufferedImage = ImageIO.read(inputStream)
-
-        // Convert BufferedImage to ImageBitmap
-        bufferedImage.toComposeImageBitmap()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-

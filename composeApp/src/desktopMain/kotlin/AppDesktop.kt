@@ -11,6 +11,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import storify.MainViewModel
@@ -57,4 +60,47 @@ actual fun ImagePicker(viewModel: MainViewModel) {
         }
     }
 }
+
+
+///
+actual fun ImageBitmap?.convert(): ByteArray? {
+    if (this == null) {
+        return null
+    }
+    val bufferedImage = BufferedImage(
+        width,
+        height,
+        BufferedImage.TYPE_INT_ARGB
+    )
+
+    // Copy the ImageBitmap to BufferedImage
+    val bitmap = toAwtImage()
+    bufferedImage.graphics.drawImage(bitmap, 0, 0, null)
+
+    // Convert BufferedImage to ByteArray
+    val outputStream = ByteArrayOutputStream()
+    ImageIO.write(bufferedImage, "png", outputStream)
+
+    println(outputStream.toByteArray().toString())
+
+    return outputStream.toByteArray()
+}
+
+
+actual fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
+    return try {
+        // Convert ByteArray to BufferedImage
+        val inputStream = ByteArrayInputStream(this)
+        val bufferedImage: BufferedImage = ImageIO.read(inputStream)
+
+        // Convert BufferedImage to ImageBitmap
+        bufferedImage.toComposeImageBitmap()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+
+
 

@@ -3,26 +3,41 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import data.Strings.localized
 import storify.MainViewModel
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.IOException
 import java.nio.ByteBuffer
 
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 actual fun ImagePicker(viewModel: MainViewModel) {
-    val context = LocalContext.current
     val state = viewModel.state.value
+    val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
@@ -35,19 +50,40 @@ actual fun ImagePicker(viewModel: MainViewModel) {
     )
 
     Card(
-        Modifier
-            .fillMaxWidth()
-            .clickable { launcher.launch("image/*") }
+        modifier = Modifier.width(280.dp).aspectRatio(10f / 3f), onClick = {
+            launcher.launch("image/*")
+        },
+        backgroundColor = MaterialTheme.colors.surface
     ) {
         state.image?.let {
             Image(
                 bitmap = it,
                 contentDescription = "Selected Image",
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
             )
-        } ?: Button(onClick = { launcher.launch("image/*") }) {
-            Text("Select Image")
+        } ?: Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text("Select Image".localized)
         }
+    }
+}
+
+actual fun ImageBitmap?.convert(): ByteArray? {
+    if (this == null) return null
+
+    val bitmap = this.asAndroidBitmap()
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+
+    return outputStream.toByteArray()
+}
+
+actual fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
+    return try {
+        val bitmap: Bitmap = BitmapFactory.decodeStream(ByteArrayInputStream(this))
+        bitmap.asImageBitmap()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }
 
