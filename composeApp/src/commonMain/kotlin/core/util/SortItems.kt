@@ -1,6 +1,6 @@
 package core.util
 
-import core.model.Item
+import domain.model.Item
 
 fun List<Item>.sortItems(it: String): List<Item> {
     val items = this

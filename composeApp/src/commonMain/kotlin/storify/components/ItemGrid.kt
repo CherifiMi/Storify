@@ -25,26 +25,28 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import core.model.Item
+import domain.model.Item
 import core.theme.liteGray
 import core.util.sortItems
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import storify.AppEvent
 import storify.MainViewModel
-import data.Strings.localized
+import core.model.Strings.localized
 import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_box
 import storify.composeapp.generated.resources.ic_edit
-import storify.composeapp.generated.resources.ic_min
-import storify.composeapp.generated.resources.ic_plus
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -98,19 +100,24 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
         Column(Modifier.padding(bottom = 16.dp)){
 
             Card(Modifier.fillMaxWidth().aspectRatio(2f)) {
-                item.image?.let {/*.byteArrayToImageBitmap()?*/
+                var image by remember { mutableStateOf<ImageBitmap?>(null) }
+
+                viewModel.drawImage(item.image_id ?: "") {
+                    image = it
+                }
+
+                image?.let { it1 ->
                     Image(
-                        bitmap = it,
+                        bitmap = it1,
                         contentDescription = null,
-                        modifier = Modifier.size(30.dp).padding(bottom = 8.dp),
-                        contentScale = ContentScale.Crop,  // Add this line to crop the image
+                        modifier = Modifier.size(30.dp).padding(end = 8.dp),
                     )
                 } ?: Image(
-                    modifier = Modifier.size(30.dp).padding(bottom = 8.dp),
+                    modifier = Modifier.size(30.dp).padding(end = 8.dp),
                     painter = painterResource(Res.drawable.ic_box),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop
+                    contentDescription = null
                 )
+
             }
 
 

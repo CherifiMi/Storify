@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import storify.MainViewModel
-import data.Strings.localized
+import core.model.Strings.localized
 import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_cart2
 import storify.composeapp.generated.resources.ic_profit

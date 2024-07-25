@@ -1,7 +1,7 @@
 package org.example.storify
 
 
-import SplashScreen
+import storify.components.SplashScreen
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
@@ -46,7 +46,7 @@ import org.koin.dsl.binds
 import org.koin.dsl.module
 import storify.AppEvent
 import storify.MainViewModel
-import data.Strings.localized
+import core.model.Strings.localized
 import storify.components.AddItemDialog
 import storify.components.ItemGrid
 import storify.components.SearchBar

@@ -1,4 +1,4 @@
-package data
+package core.model
 
 object Strings {
     private val en = mapOf(

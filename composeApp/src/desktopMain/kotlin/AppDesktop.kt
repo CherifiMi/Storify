@@ -12,22 +12,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import storify.MainViewModel
-import data.Strings.localized
-import org.jetbrains.skia.Bitmap
-import org.jetbrains.skiko.toBufferedImage
+import core.model.Strings.localized
 import java.awt.FileDialog
 import java.awt.Frame
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
-import java.nio.ByteBuffer
 import javax.imageio.ImageIO
 
 

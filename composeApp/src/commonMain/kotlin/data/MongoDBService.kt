@@ -1,7 +1,8 @@
-package domain
+package data
 
-import core.model.Item
-import core.model.SerializationService
+import domain.model.Item
+import domain.model.ItemImage
+import domain.model.SerializationService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -82,17 +83,16 @@ object MongoDBService {
             )
         )
 
-        val requestBody = /*jsonBody.toRequestBody()*/
-            jsonBody.toRequestBody("application/json".toMediaTypeOrNull())
+        val requestBody = jsonBody.toRequestBody("application/json".toMediaTypeOrNull())
 
         val request = Request.Builder()
-            .url("https://eu-central-1.aws.data.mongodb-api.com/app/data-utvnrfx/endpoint/data/v1/action/find")
+            .url("$apiUrl/find")
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Access-Control-Request-Headers", "*")
             .addHeader(
                 "api-key",
-                "Q0Uk5NInIcjqnurtinXYTlEAQYb6eUBkCf0yXh7vRyBxLUAgPxf6eEqA1sKRk9YG"
+                apiKey
             )
             .build()
 
@@ -133,10 +133,13 @@ object MongoDBService {
         val requestBody = jsonBody.toRequestBody()
 
         val request = Request.Builder()
-            .url("https://eu-central-1.aws.data.mongodb-api.com/app/data-utvnrfx/endpoint/data/v1/action/updateOne")
+            .url("$apiUrl/updateOne")
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
-            .addHeader("api-key", "Q0Uk5NInIcjqnurtinXYTlEAQYb6eUBkCf0yXh7vRyBxLUAgPxf6eEqA1sKRk9YG")
+            .addHeader(
+                "api-key",
+                apiKey
+            )
             .build()
 
         withContext(Dispatchers.IO) {
@@ -154,5 +157,84 @@ object MongoDBService {
 
     }
 
-}
+    suspend fun insertImage(image: ItemImage) {
 
+        val json = SerializationService.json
+
+        val itemJsonElement = json.encodeToJsonElement(image)
+
+        val jsonObject = buildJsonObject {
+            put("collection", JsonPrimitive("images"))
+            put("database", JsonPrimitive("storify"))
+            put("dataSource", JsonPrimitive("storify1"))
+            put("document", itemJsonElement)
+        }
+
+        // Convert the JsonObject to a JSON string
+        val jsonBody = json.encodeToString(jsonObject)
+
+        val requestBody = jsonBody.toRequestBody()
+
+        val request = Request.Builder()
+            .url("$apiUrl/insertOne")
+            .post(requestBody)
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Access-Control-Request-Headers", "*")
+            .addHeader(
+                "api-key",
+                apiKey
+            )
+            .build()
+
+        withContext(Dispatchers.IO) {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    println("Request Body: $jsonBody")
+                    println("Response: ${response.body?.string()}")
+                    throw IOException("Unexpected code $response")
+                } else {
+                    println("Response: ${response.body?.string()}")
+
+                }
+            }
+        }
+    }
+
+    suspend fun getImage(imageId: String): ItemImage? {
+        val jsonObject = buildJsonObject {
+            put("collection", JsonPrimitive("images"))
+            put("database", JsonPrimitive("storify"))
+            put("dataSource", JsonPrimitive("storify1"))
+            put("filter", buildJsonObject {
+                put("_id", JsonPrimitive(imageId))
+            })
+        }
+
+        val jsonBody = Json.encodeToString(jsonObject)
+        val requestBody = jsonBody.toRequestBody()
+
+        val request = Request.Builder()
+            .url("$apiUrl/findOne")
+            .post(requestBody)
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Access-Control-Request-Headers", "*")
+            .addHeader("api-key", apiKey)
+            .build()
+
+        return withContext(Dispatchers.IO) {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    throw IOException("Failed to fetch item: ${response.code}")
+                }
+
+                val jsonResponse = Json.parseToJsonElement(response.body?.string() ?: "").jsonObject
+                val document = jsonResponse["document"]?.jsonObject ?: return@withContext null
+
+                val item = SerializationService.jsonStringToImage(document.toString())
+
+                item
+            }
+        }
+    }
+
+}

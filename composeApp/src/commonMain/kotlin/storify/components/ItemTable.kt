@@ -21,16 +21,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Colors
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,12 +43,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import storify.AppEvent
 import storify.MainViewModel
-import data.Strings.localized
+import core.model.Strings.localized
 import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_box
 import storify.composeapp.generated.resources.ic_edit
-import storify.composeapp.generated.resources.ic_min
-import storify.composeapp.generated.resources.ic_plus
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -114,9 +115,16 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)) {
                         Row(modifier = Modifier.weight(1f)) {
 
-                            item.image?.let {//.byteArrayToImageBitmap()?
+                            //////////
+                            var image by remember { mutableStateOf<ImageBitmap?>(null) }
+
+                            viewModel.drawImage(item.image_id ?: "") {
+                                image = it
+                            }
+
+                            image?.let { it1 ->
                                 Image(
-                                    bitmap = it,
+                                    bitmap = it1,
                                     contentDescription = null,
                                     modifier = Modifier.size(30.dp).padding(end = 8.dp),
                                 )
@@ -125,6 +133,9 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                                 painter = painterResource(Res.drawable.ic_box),
                                 contentDescription = null
                             )
+
+
+                            /////////////////
 
                             Text(
                                 fontSize = 14.sp,
@@ -250,7 +261,7 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
 fun String.getExpColor(): Color {
     val exp_level = getExpirationLevel(this)
 
-    return when(exp_level){
+    return when (exp_level) {
         0 -> Color.Gray.copy(alpha = .7f)
         1 -> Color.Green.copy(alpha = .7f)
         2 -> Color.Yellow.copy(alpha = .7f)
@@ -258,6 +269,7 @@ fun String.getExpColor(): Color {
         else -> Color.Gray.copy(alpha = .7f)
     }
 }
+
 fun getExpirationLevel(dateString: String): Int {
     val formatters = listOf(
         DateTimeFormatter.ofPattern("d/M/yyyy"),

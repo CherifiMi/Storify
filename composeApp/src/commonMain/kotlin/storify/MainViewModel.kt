@@ -7,11 +7,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.Serializable
 import androidx.compose.runtime.State
 import androidx.compose.ui.graphics.ImageBitmap
-import core.model.Item
-import core.util.flip
-import core.util.update
-import data.Strings
-import domain.MongoDBService
+import domain.model.Item
+import domain.model.ItemImage
+import core.util.ext.flip
+import core.util.ext.update
+import core.model.Strings
+import data.MongoDBService
 import kotlinx.coroutines.launch
 import org.bson.types.ObjectId
 
@@ -22,17 +23,12 @@ data class AppState(
     val showAddItem: Boolean = false,
     val filer: String = "+Name",
     val searchText: String = "",
-
     val theme: String = "dark",//"light",//dark
     val lang: String = "en",//"en",//ar
     val calc: String = "single",//whole
     val grid: String = "table",//grid
-
-
     val image: ImageBitmap? = null,
-
     val selectedItem: Item? = null,
-
     val showSplashScreen: Boolean = true,
 )
 
@@ -52,12 +48,13 @@ sealed class AppEvent {
 }
 
 
-
 class MainViewModel {
     private val _state = mutableStateOf(AppState())
     val state: State<AppState> = _state
     private val viewModelScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val db = MongoDBService
+
+    val listOfImagesItems = mutableListOf<ItemImage?>()
 
     init {
         viewModelScope.launch {
@@ -71,9 +68,19 @@ class MainViewModel {
         when (event) {
             is AppEvent.AddItem -> {
                 viewModelScope.launch {
-                    if (event.item._id.isEmpty()){
-                        db.insertItem(event.item.copy(_id = ObjectId().toString()))
-                    }else{
+                    if (event.item._id.isEmpty()) {
+                        val image = state.value.image
+                        val itemImage = ItemImage(_id = ObjectId().toString(), image = image)
+                        db.insertItem(
+                            event.item.copy(
+                                _id = ObjectId().toString(),
+                                image_id = itemImage._id
+                            )
+                        )
+                        viewModelScope.launch {
+                            db.insertImage(itemImage)
+                        }
+                    } else {
                         db.replaceItem(event.item)
                     }
                     db.getItems().let {
@@ -107,15 +114,27 @@ class MainViewModel {
                 _state.update { copy(lang = if (state.value.lang == "ar") "en" else "ar") }
                 Strings.setLanguage(state.value.lang)
             }
+
             AppEvent.FlipTheme -> _state.update { copy(theme = if (state.value.theme == "dark") "light" else "dark") }
+
             is AppEvent.EditItem -> {//
-                _state.update { copy(selectedItem =  event.item, image = event.item.image, showAddItem = true) }
+                _state.update { copy(selectedItem = event.item, showAddItem = true) }
             }
         }
+
     }
 
     fun updateImage(toComposeImageBitmap: ImageBitmap) {
         _state.update { copy(image = toComposeImageBitmap) }
+    }
+
+    fun drawImage(id: String, f:(image: ImageBitmap?)->Unit) {
+        id.ifEmpty { return }
+        viewModelScope.launch {
+            db.getImage(id)?.let { image ->
+                f(image.image)
+            }
+        }
     }
 }
 

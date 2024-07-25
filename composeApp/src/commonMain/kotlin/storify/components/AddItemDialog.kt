@@ -21,8 +21,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import core.model.Item
-import data.Strings.localized
+import domain.model.Item
+import core.model.Strings.localized
 import org.koin.compose.koinInject
 import storify.MainViewModel
 
@@ -101,7 +101,6 @@ fun AddItemDialog(
                         val item = Item(
                             _id = id,
                             name = name,
-                            image = state.image/*.convert()*/,
                             quantity = quantity.toIntOrNull() ?: 0,
                             wholePrice = wholePrice.toDoubleOrNull() ?: 0.0,
                             sellingPrice = sellingPrice.toDoubleOrNull() ?: 0.0,

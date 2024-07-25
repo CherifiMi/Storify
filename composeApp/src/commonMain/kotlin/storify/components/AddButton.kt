@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import org.koin.compose.koinInject
 import storify.AppEvent
 import storify.MainViewModel
-import data.Strings.localized
+import core.model.Strings.localized
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
