@@ -47,6 +47,8 @@ import core.model.Strings.localized
 import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_box
 import storify.composeapp.generated.resources.ic_edit
+import storify.composeapp.generated.resources.ic_min
+import storify.composeapp.generated.resources.ic_plus
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -148,9 +150,9 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                /*Card(
-                    modifier = Modifier.size(32.dp),
-                    onClick = { viewModel.onEvent(AppEvent.FlipGrid) },
+                Card(
+                    modifier = Modifier.padding(vertical = 8.dp).size(32.dp),
+                    onClick = { viewModel.onEvent(AppEvent.MinItem(item)) },
                     backgroundColor = MaterialTheme.colors.secondary
                 ) {
                     Icon(
@@ -160,10 +162,12 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
                         modifier = Modifier.padding(4.dp)
                     )
                 }
+
                 Spacer(Modifier.width(16.dp))
+
                 Card(
-                    modifier = Modifier.size(32.dp),
-                    onClick = { viewModel.onEvent(AppEvent.FlipGrid) },
+                    modifier = Modifier.padding(vertical = 8.dp).size(32.dp),
+                    onClick = { viewModel.onEvent(AppEvent.PlusItem(item)) },
                     backgroundColor = MaterialTheme.colors.secondary
                 ) {
                     Icon(
@@ -172,10 +176,13 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
                         contentDescription = null,
                         modifier = Modifier.padding(4.dp)
                     )
-                }*/
+                }
+
+
+
                 Spacer(Modifier.width(16.dp))
                 Card(
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.padding(vertical = 8.dp).size(32.dp),
                     onClick = { viewModel.onEvent(AppEvent.EditItem(item)) },
                     backgroundColor = MaterialTheme.colors.secondary
                 ) {
