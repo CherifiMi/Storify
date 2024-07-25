@@ -13,3 +13,7 @@ val black = Color(0xFF282828)
 val lightGreen = Color(0xFFC5EAC9)
 val darkGreen = Color(0xFF01575C)
 
+val Red = Color(0xFFEB9D99)
+val Green = Color(0xFFC5EAC9)
+val Yellow = Color(0xFFFFDD82)
+

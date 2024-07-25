@@ -13,6 +13,8 @@ import core.util.ext.flip
 import core.util.ext.update
 import core.model.Strings
 import data.MongoDBService
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.bson.types.ObjectId
 
@@ -34,31 +36,32 @@ data class AppState(
 
 sealed class AppEvent {
     data class AddItem(val item: Item) : AppEvent()
-    data object GetAllItems : AppEvent()
     data class ShowAddItem(val set: Boolean) : AppEvent()
     data class SetFilter(val filter: String) : AppEvent()
     data class UpdateSearchText(val txt: String) : AppEvent()
-
     data object FlipTheme : AppEvent()
     data object FlipLang : AppEvent()
     data object FlipGrid : AppEvent()
     data object FlipCalc : AppEvent()
-
     data class EditItem(val item: Item) : AppEvent()
+    data class PlusItem(val item: Item) : AppEvent()
+    data class MinItem(val item: Item) : AppEvent()
 }
 
 
 class MainViewModel {
+
     private val _state = mutableStateOf(AppState())
     val state: State<AppState> = _state
-    private val viewModelScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val db = MongoDBService
 
-    val listOfImagesItems = mutableListOf<ItemImage?>()
+    private val viewModelScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val db = MongoDBService
 
     init {
         viewModelScope.launch {
             db.getItems().let {
+                delay(1000)
                 _state.update { copy(items = it, showSplashScreen = false) }
             }
         }
@@ -88,8 +91,6 @@ class MainViewModel {
                     }
                 }
             }
-
-            AppEvent.GetAllItems -> TODO()
             is AppEvent.ShowAddItem -> {
                 _state.update { copy(showAddItem = event.set) }
             }
@@ -119,6 +120,25 @@ class MainViewModel {
 
             is AppEvent.EditItem -> {//
                 _state.update { copy(selectedItem = event.item, showAddItem = true) }
+            }
+
+            is AppEvent.PlusItem -> {
+                viewModelScope.launch {
+                    db.replaceItem(event.item.copy(quantity = event.item.quantity.plus(1))).let {
+                        db.getItems().let {
+                            _state.update { copy(items = it) }
+                        }
+                    }
+                }
+            }
+            is AppEvent.MinItem -> {
+                viewModelScope.launch {
+                    db.replaceItem(event.item.copy(quantity = event.item.quantity.minus(1))).let {
+                        db.getItems().let {
+                            _state.update { copy(items = it) }
+                        }
+                    }
+                }
             }
         }
 

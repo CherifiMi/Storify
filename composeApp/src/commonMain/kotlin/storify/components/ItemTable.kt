@@ -44,9 +44,14 @@ import org.koin.compose.koinInject
 import storify.AppEvent
 import storify.MainViewModel
 import core.model.Strings.localized
+import core.theme.Green
+import core.theme.Red
+import core.theme.Yellow
 import storify.composeapp.generated.resources.Res
 import storify.composeapp.generated.resources.ic_box
 import storify.composeapp.generated.resources.ic_edit
+import storify.composeapp.generated.resources.ic_min
+import storify.composeapp.generated.resources.ic_plus
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -134,9 +139,6 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                                 contentDescription = null
                             )
 
-
-                            /////////////////
-
                             Text(
                                 fontSize = 14.sp,
                                 text = item.name,
@@ -194,14 +196,16 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                             )
                         }
                         Row(
-                            modifier = Modifier.weight(.5f),
+                            modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
 
-                            /*Card(
+
+
+                            Card(
                                 modifier = Modifier.padding(bottom = 16.dp).size(32.dp),
-                                onClick = { viewModel.onEvent(AppEvent.FlipGrid) },
+                                onClick = { viewModel.onEvent(AppEvent.MinItem(item)) },
                                 backgroundColor = MaterialTheme.colors.secondary
                             ) {
                                 Icon(
@@ -211,10 +215,12 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                                     modifier = Modifier.padding(4.dp)
                                 )
                             }
+
                             Spacer(Modifier.width(16.dp))
+
                             Card(
                                 modifier = Modifier.padding(bottom = 16.dp).size(32.dp),
-                                onClick = { viewModel.onEvent(AppEvent.FlipGrid) },
+                                onClick = { viewModel.onEvent(AppEvent.PlusItem(item)) },
                                 backgroundColor = MaterialTheme.colors.secondary
                             ) {
                                 Icon(
@@ -223,7 +229,10 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                                     contentDescription = null,
                                     modifier = Modifier.padding(4.dp)
                                 )
-                            }*/
+                            }
+
+
+
                             Spacer(Modifier.width(16.dp))
                             Card(
                                 modifier = Modifier.padding(bottom = 16.dp).size(32.dp),
@@ -263,9 +272,9 @@ fun String.getExpColor(): Color {
 
     return when (exp_level) {
         0 -> Color.Gray.copy(alpha = .7f)
-        1 -> Color.Green.copy(alpha = .7f)
-        2 -> Color.Yellow.copy(alpha = .7f)
-        3 -> Color.Red.copy(alpha = .7f)
+        1 -> Green
+        2 -> Yellow
+        3 -> Red
         else -> Color.Gray.copy(alpha = .7f)
     }
 }
