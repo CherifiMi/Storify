@@ -1,11 +1,16 @@
 package storify.components
 
 import ImagePicker
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
 import androidx.compose.material.Card
@@ -18,35 +23,61 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import domain.model.Item
 import core.model.Strings.localized
+import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.koinInject
 import storify.MainViewModel
+import storify.composeapp.generated.resources.Res
+import storify.composeapp.generated.resources.ic_box
+import java.awt.FileDialog
+import java.awt.Frame
+import java.io.File
+import javax.imageio.ImageIO
 
 @Composable
-fun AddItemDialog(
+fun EditItemDialog(
     viewModel: MainViewModel = koinInject(),
     onDismiss: () -> Unit,
-    onSave: (Item) -> Unit
+    onEdit: (Item) -> Unit
 ) {
     val state = viewModel.state.value
 
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
-    var wholePrice by remember { mutableStateOf("") }
-    var sellingPrice by remember { mutableStateOf("") }
-    var expirationDateDay by remember { mutableStateOf("") }
-    var expirationDateMonth by remember { mutableStateOf("") }
-    var expirationDateYear by remember { mutableStateOf("") }
+    var id by remember { mutableStateOf(state.selectedItem?._id ?: "") }
+    var name by remember { mutableStateOf(state.selectedItem?.name ?:"") }
+    var quantity by remember { mutableStateOf(state.selectedItem?.quantity?.toString() ?:"") }
+    var wholePrice by remember { mutableStateOf(state.selectedItem?.wholePrice?.toString() ?:"") }
+    var sellingPrice by remember { mutableStateOf(state.selectedItem?.sellingPrice?.toString() ?:"") }
+
+    var expirationDateDay by remember { mutableStateOf(state.selectedItem?.expirationDate?.split("/")?.getOrNull(0) ?:"") }
+    var expirationDateMonth by remember { mutableStateOf(state.selectedItem?.expirationDate?.split("/")?.getOrNull(1)  ?:"") }
+    var expirationDateYear by remember { mutableStateOf(state.selectedItem?.expirationDate?.split("/")?.getOrNull(2)  ?:"") }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(elevation = 8.dp) {
             Column(modifier = Modifier.padding(16.dp)) {
 
-                ImagePicker(viewModel)
+                Card(
+                    modifier = Modifier.width(280.dp).aspectRatio(10f / 3f),
+                    backgroundColor = MaterialTheme.colors.surface
+                ) {
+                    state.image?.let {
+                        Image(
+                            bitmap = it,
+                            contentDescription = "Selected Image",
+                            modifier = Modifier
+                        )
+                    } ?: Image(
+                        painter = painterResource(Res.drawable.ic_box),
+                        contentDescription = null
+                    )
+                }
+
 
                 Text("Add New Item".localized, style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -91,15 +122,18 @@ fun AddItemDialog(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
+
                         val item = Item(
+                            _id = id,
                             name = name,
                             quantity = quantity.toIntOrNull() ?: 0,
                             wholePrice = wholePrice.toDoubleOrNull() ?: 0.0,
                             sellingPrice = sellingPrice.toDoubleOrNull() ?: 0.0,
                             profit = (sellingPrice.toDoubleOrNull() ?: 0.0) - (wholePrice.toDoubleOrNull() ?: 0.0),
-                            expirationDate = "$expirationDateDay/$expirationDateMonth/$expirationDateYear"
+                            expirationDate = "$expirationDateDay/$expirationDateMonth/$expirationDateYear",
+                            image_id = state.selectedItem?.image_id
                         )
-                        onSave(item)
+                        onEdit(item)
                         onDismiss()
                     }) {
                         Text("Save".localized)

@@ -23,6 +23,7 @@ import org.bson.types.ObjectId
 data class AppState(
     val items: List<Item> = listOf(),
     val showAddItem: Boolean = false,
+    val showEditItem: Boolean = false,
     val filer: String = "+Name",
     val searchText: String = "",
     val theme: String = "dark",//"light",//dark
@@ -36,14 +37,18 @@ data class AppState(
 
 sealed class AppEvent {
     data class AddItem(val item: Item) : AppEvent()
+    data class EditItem(val item: Item) : AppEvent()
     data class ShowAddItem(val set: Boolean) : AppEvent()
+    data class ShowEditItem(val set: Boolean, val item: Item? = null) : AppEvent()
+
     data class SetFilter(val filter: String) : AppEvent()
     data class UpdateSearchText(val txt: String) : AppEvent()
+
     data object FlipTheme : AppEvent()
     data object FlipLang : AppEvent()
     data object FlipGrid : AppEvent()
     data object FlipCalc : AppEvent()
-    data class EditItem(val item: Item) : AppEvent()
+
     data class PlusItem(val item: Item) : AppEvent()
     data class MinItem(val item: Item) : AppEvent()
 }
@@ -71,28 +76,50 @@ class MainViewModel {
         when (event) {
             is AppEvent.AddItem -> {
                 viewModelScope.launch {
-                    if (event.item._id.isEmpty()) {
-                        val image = state.value.image
-                        val itemImage = ItemImage(_id = ObjectId().toString(), image = image)
-                        db.insertItem(
-                            event.item.copy(
-                                _id = ObjectId().toString(),
-                                image_id = itemImage._id
-                            )
+                    val image = state.value.image
+                    val itemImage = ItemImage(_id = ObjectId().toString(), image = image)
+                    db.insertItem(
+                        event.item.copy(
+                            _id = ObjectId().toString(),
+                            image_id = itemImage._id
                         )
-                        viewModelScope.launch {
-                            db.insertImage(itemImage)
-                        }
-                    } else {
-                        db.replaceItem(event.item)
+                    )
+                    viewModelScope.launch {
+                        db.insertImage(itemImage)
                     }
+
                     db.getItems().let {
                         _state.update { copy(items = it, selectedItem = null) }
                     }
                 }
             }
+
+            is AppEvent.EditItem -> {
+                viewModelScope.launch {
+                    db.replaceItem(event.item)
+                    db.getItems().let {
+                        _state.update { copy(items = it, selectedItem = null) }
+                    }
+                }
+            }
+
             is AppEvent.ShowAddItem -> {
                 _state.update { copy(showAddItem = event.set) }
+            }
+
+            is AppEvent.ShowEditItem -> {
+                if (event.set){
+                    _state.update { copy(selectedItem = event.item, showEditItem = event.set) }
+                    viewModelScope.launch {
+                        event.item?.image_id?.let {
+                            drawImage(it) {
+                                _state.update { copy(image = it) }
+                            }
+                        }
+                    }
+                }else{
+                    _state.update { copy(selectedItem = event.item, showEditItem = event.set, image = null) }
+                }
             }
 
             is AppEvent.SetFilter -> {
@@ -118,10 +145,6 @@ class MainViewModel {
 
             AppEvent.FlipTheme -> _state.update { copy(theme = if (state.value.theme == "dark") "light" else "dark") }
 
-            is AppEvent.EditItem -> {//
-                _state.update { copy(selectedItem = event.item, showAddItem = true) }
-            }
-
             is AppEvent.PlusItem -> {
                 viewModelScope.launch {
                     db.replaceItem(event.item.copy(quantity = event.item.quantity.plus(1))).let {
@@ -131,6 +154,7 @@ class MainViewModel {
                     }
                 }
             }
+
             is AppEvent.MinItem -> {
                 viewModelScope.launch {
                     db.replaceItem(event.item.copy(quantity = event.item.quantity.minus(1))).let {
@@ -148,7 +172,7 @@ class MainViewModel {
         _state.update { copy(image = toComposeImageBitmap) }
     }
 
-    fun drawImage(id: String, f:(image: ImageBitmap?)->Unit) {
+    fun drawImage(id: String, f: (image: ImageBitmap?) -> Unit) {
         id.ifEmpty { return }
         viewModelScope.launch {
             db.getImage(id)?.let { image ->

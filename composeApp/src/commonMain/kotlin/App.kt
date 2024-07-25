@@ -26,6 +26,7 @@ import org.koin.compose.koinInject
 import storify.AppEvent
 import storify.MainViewModel
 import storify.components.AddItemDialog
+import storify.components.EditItemDialog
 import storify.components.ItemGrid
 import storify.components.ItemTable
 import storify.components.SearchBar
@@ -91,6 +92,14 @@ fun App(viewModel: MainViewModel = koinInject()) {
                     onDismiss = { viewModel.onEvent(AppEvent.ShowAddItem(false)) },
                     onSave = { item ->
                         viewModel.onEvent(AppEvent.AddItem(item))
+                    }
+                )
+            }
+            if (state.showEditItem) {
+                EditItemDialog(
+                    onDismiss = { viewModel.onEvent(AppEvent.ShowEditItem(false,)) },
+                    onEdit = { item ->
+                        viewModel.onEvent(AppEvent.EditItem(item))
                     }
                 )
             }

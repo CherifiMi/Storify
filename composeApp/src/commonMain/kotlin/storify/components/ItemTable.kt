@@ -236,7 +236,7 @@ fun ItemTable(viewModel: MainViewModel = koinInject()) {
                             Spacer(Modifier.width(16.dp))
                             Card(
                                 modifier = Modifier.padding(bottom = 16.dp).size(32.dp),
-                                onClick = { viewModel.onEvent(AppEvent.EditItem(item)) },
+                                onClick = { viewModel.onEvent(AppEvent.ShowEditItem(true, item)) },
                                 backgroundColor = MaterialTheme.colors.secondary
                             ) {
                                 Icon(
