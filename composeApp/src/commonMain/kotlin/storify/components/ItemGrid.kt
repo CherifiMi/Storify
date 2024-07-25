@@ -181,6 +181,7 @@ fun GridItemView(item: Item, viewModel: MainViewModel = koinInject()) {
 
 
                 Spacer(Modifier.width(16.dp))
+
                 Card(
                     modifier = Modifier.padding(vertical = 8.dp).size(32.dp),
                     onClick = { viewModel.onEvent(AppEvent.ShowEditItem(true, item)) },
