@@ -29,6 +29,9 @@ kotlin {
 
             implementation("io.insert-koin:koin-android:3.4.0")
             implementation("io.insert-koin:koin-androidx-compose:3.4.0")
+            implementation("androidx.work:work-runtime:2.8.1")
+
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -38,8 +41,8 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
-            //gson
-            //implementation("com.google.code.gson:gson:2.10.1")
+            //ktor
+            implementation(libs.ktor.core)
 
             //okhttp
             implementation("com.squareup.okhttp3:okhttp:4.10.0")
@@ -58,9 +61,19 @@ kotlin {
             // serialization
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
+            // aws
+            implementation("aws.sdk.kotlin:s3:1.0.0")
+
+            // coil
+            implementation(libs.coil.compose.core)
+            implementation(libs.coil.mp)
+            implementation(libs.coil.network.ktor)
+            implementation(libs.coil.compose)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+            implementation(libs.ktor.client.okhttp)
+            runtimeOnly(libs.kotlinx.coroutines.swing)
         }
     }
 }
@@ -90,6 +103,7 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {

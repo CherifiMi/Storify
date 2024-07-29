@@ -1,16 +1,11 @@
 package storify.components
 
-import ImagePicker
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.Button
 import androidx.compose.material.Card
@@ -18,27 +13,18 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import domain.model.Item
+import core.components.MongoImage
 import core.model.Strings.localized
-import org.jetbrains.compose.resources.painterResource
+import domain.model.Item
 import org.koin.compose.koinInject
 import storify.MainViewModel
-import storify.composeapp.generated.resources.Res
-import storify.composeapp.generated.resources.ic_box
-import java.awt.FileDialog
-import java.awt.Frame
-import java.io.File
-import javax.imageio.ImageIO
 
 @Composable
 fun EditItemDialog(
@@ -66,18 +52,8 @@ fun EditItemDialog(
                     modifier = Modifier.width(280.dp).aspectRatio(10f / 3f),
                     backgroundColor = MaterialTheme.colors.surface
                 ) {
-                    state.image?.let {
-                        Image(
-                            bitmap = it,
-                            contentDescription = "Selected Image",
-                            modifier = Modifier
-                        )
-                    } ?: Image(
-                        painter = painterResource(Res.drawable.ic_box),
-                        contentDescription = null
-                    )
+                    MongoImage(image_url = state.selectedItem?.image_id)
                 }
-
 
                 Text("Add New Item".localized, style = MaterialTheme.typography.h6)
                 Spacer(modifier = Modifier.height(8.dp))

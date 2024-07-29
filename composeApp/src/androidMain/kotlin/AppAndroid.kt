@@ -24,12 +24,18 @@ import core.model.Strings.localized
 import storify.MainViewModel
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import android.content.Context
+import android.util.Log
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import storify.saveAppState
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 actual fun ImagePicker(viewModel: MainViewModel) {
     val state = viewModel.state.value
+
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -60,9 +66,7 @@ actual fun ImagePicker(viewModel: MainViewModel) {
     }
 }
 
-actual fun ImageBitmap?.convert(): ByteArray? {
-    if (this == null) return null
-
+actual fun ImageBitmap.convert(): ByteArray {
     val bitmap = this.asAndroidBitmap()
     val outputStream = ByteArrayOutputStream()
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
@@ -79,5 +83,8 @@ actual fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
         null
     }
 }
+
+actual fun getFilePath(fileName: String): String = "/data/user/0/org.example.storify/files/$fileName"
+
 
 

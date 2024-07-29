@@ -20,8 +20,7 @@ import java.io.IOException
 
 object MongoDBService {
 
-    private const val apiUrl =
-        "https://eu-central-1.aws.data.mongodb-api.com/app/data-utvnrfx/endpoint/data/v1/action"
+    private const val apiUrl = "https://eu-central-1.aws.data.mongodb-api.com/app/data-utvnrfx/endpoint/data/v1/action"
     private const val apiKey = "Q0Uk5NInIcjqnurtinXYTlEAQYb6eUBkCf0yXh7vRyBxLUAgPxf6eEqA1sKRk9YG"
 
     private val client = OkHttpClient()
@@ -72,7 +71,6 @@ object MongoDBService {
             }
         }
     }
-
     suspend fun getItems(): List<Item> {
 
         val jsonBody = Json.encodeToString(
@@ -107,10 +105,7 @@ object MongoDBService {
             documents.map { SerializationService.jsonStringToItem(it.toString()) }
         }
     }
-
     suspend fun replaceItem(item: Item) {
-
-
         val json = Json { encodeDefaults = true }
 
         val itemJsonElement = json.encodeToJsonElement(item)
@@ -156,85 +151,4 @@ object MongoDBService {
         }
 
     }
-
-    suspend fun insertImage(image: ItemImage) {
-
-        val json = SerializationService.json
-
-        val itemJsonElement = json.encodeToJsonElement(image)
-
-        val jsonObject = buildJsonObject {
-            put("collection", JsonPrimitive("images"))
-            put("database", JsonPrimitive("storify"))
-            put("dataSource", JsonPrimitive("storify1"))
-            put("document", itemJsonElement)
-        }
-
-        // Convert the JsonObject to a JSON string
-        val jsonBody = json.encodeToString(jsonObject)
-
-        val requestBody = jsonBody.toRequestBody()
-
-        val request = Request.Builder()
-            .url("$apiUrl/insertOne")
-            .post(requestBody)
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Access-Control-Request-Headers", "*")
-            .addHeader(
-                "api-key",
-                apiKey
-            )
-            .build()
-
-        withContext(Dispatchers.IO) {
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    println("Request Body: $jsonBody")
-                    println("Response: ${response.body?.string()}")
-                    throw IOException("Unexpected code $response")
-                } else {
-                    println("Response: ${response.body?.string()}")
-
-                }
-            }
-        }
-    }
-
-    suspend fun getImage(imageId: String): ItemImage? {
-        val jsonObject = buildJsonObject {
-            put("collection", JsonPrimitive("images"))
-            put("database", JsonPrimitive("storify"))
-            put("dataSource", JsonPrimitive("storify1"))
-            put("filter", buildJsonObject {
-                put("_id", JsonPrimitive(imageId))
-            })
-        }
-
-        val jsonBody = Json.encodeToString(jsonObject)
-        val requestBody = jsonBody.toRequestBody()
-
-        val request = Request.Builder()
-            .url("$apiUrl/findOne")
-            .post(requestBody)
-            .addHeader("Content-Type", "application/json")
-            .addHeader("Access-Control-Request-Headers", "*")
-            .addHeader("api-key", apiKey)
-            .build()
-
-        return withContext(Dispatchers.IO) {
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    throw IOException("Failed to fetch item: ${response.code}")
-                }
-
-                val jsonResponse = Json.parseToJsonElement(response.body?.string() ?: "").jsonObject
-                val document = jsonResponse["document"]?.jsonObject ?: return@withContext null
-
-                val item = SerializationService.jsonStringToImage(document.toString())
-
-                item
-            }
-        }
-    }
-
 }

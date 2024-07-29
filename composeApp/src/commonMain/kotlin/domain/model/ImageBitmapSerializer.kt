@@ -17,7 +17,7 @@ object ImageBitmapSerializer : KSerializer<ImageBitmap?> {
 
     @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: ImageBitmap?) {
-        val byteArray = value.convert()
+        val byteArray = value?.convert()
         encoder.encodeNullableSerializableValue(ByteArraySerializer(), byteArray)
     }
 

@@ -13,27 +13,54 @@ import core.util.ext.flip
 import core.util.ext.update
 import core.model.Strings
 import data.MongoDBService
-import kotlinx.coroutines.async
+import data.uploadImageToS3
+import getFilePath
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Transient
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.bson.types.ObjectId
-
+import java.io.File
 
 @Serializable
 data class AppState(
-    val items: List<Item> = listOf(),
-    val showAddItem: Boolean = false,
-    val showEditItem: Boolean = false,
+    @Transient val items: List<Item> = listOf(),
+    @Transient val showAddItem: Boolean = false,
+    @Transient val showEditItem: Boolean = false,
+    @Transient val image: ImageBitmap? = null,
+    @Transient val selectedItem: Item? = null,
+    @Transient val showSplashScreen: Boolean = true,
     val filer: String = "+Name",
     val searchText: String = "",
     val theme: String = "dark",//"light",//dark
     val lang: String = "en",//"en",//ar
     val calc: String = "single",//whole
     val grid: String = "table",//grid
-    val image: ImageBitmap? = null,
-    val selectedItem: Item? = null,
-    val showSplashScreen: Boolean = true,
 )
+
+
+fun saveAppState(state: AppState, filePath: String) {
+    try {
+        val json = Json.encodeToString(state)
+
+        println(json)
+        File(filePath).writeText(json)
+    } catch (e: Exception) {
+        println(e)
+    }
+}
+
+fun loadAppState(filePath: String): AppState? {
+    return try {
+        val json = File(filePath).readText()
+        Json.decodeFromString<AppState>(json)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
 
 sealed class AppEvent {
     data class AddItem(val item: Item) : AppEvent()
@@ -63,7 +90,12 @@ class MainViewModel {
 
     private val db = MongoDBService
 
+
     init {
+        loadAppState(getFilePath("state.json")).let {
+            _state.update { it ?: AppState() }
+            Strings.setLanguage(it?.lang ?: "en")
+        }
         viewModelScope.launch {
             db.getItems().let {
                 delay(1000)
@@ -76,20 +108,17 @@ class MainViewModel {
         when (event) {
             is AppEvent.AddItem -> {
                 viewModelScope.launch {
-                    val image = state.value.image
-                    val itemImage = ItemImage(_id = ObjectId().toString(), image = image)
+                    val url = state.value.image?.let { uploadImageToS3(it) }
+
                     db.insertItem(
                         event.item.copy(
                             _id = ObjectId().toString(),
-                            image_id = itemImage._id
+                            image_id = url
                         )
-                    )
-                    viewModelScope.launch {
-                        db.insertImage(itemImage)
-                    }
-
-                    db.getItems().let {
-                        _state.update { copy(items = it, selectedItem = null) }
+                    ).let {
+                        db.getItems().let {
+                            _state.update { copy(items = it, selectedItem = null) }
+                        }
                     }
                 }
             }
@@ -98,7 +127,7 @@ class MainViewModel {
                 viewModelScope.launch {
                     db.replaceItem(event.item)
                     db.getItems().let {
-                        _state.update { copy(items = it, selectedItem = null) }
+                        _state.update { copy(items = it, selectedItem = null, image = null) }
                     }
                 }
             }
@@ -108,22 +137,20 @@ class MainViewModel {
             }
 
             is AppEvent.ShowEditItem -> {
-                if (event.set){
+                if (event.set) {
                     _state.update { copy(selectedItem = event.item, showEditItem = event.set) }
-                    viewModelScope.launch {
-                        event.item?.image_id?.let {
-                            drawImage(it) {
-                                _state.update { copy(image = it) }
-                            }
-                        }
+                } else {
+                    _state.update {
+                        copy(
+                            selectedItem = event.item,
+                            showEditItem = event.set,
+                            image = null
+                        )
                     }
-                }else{
-                    _state.update { copy(selectedItem = event.item, showEditItem = event.set, image = null) }
                 }
             }
 
             is AppEvent.SetFilter -> {
-
                 val currentFilter = state.value.filer
 
                 val firstChar = currentFilter.substring(0, 1)
@@ -144,7 +171,6 @@ class MainViewModel {
             }
 
             AppEvent.FlipTheme -> _state.update { copy(theme = if (state.value.theme == "dark") "light" else "dark") }
-
             is AppEvent.PlusItem -> {
                 viewModelScope.launch {
                     db.replaceItem(event.item.copy(quantity = event.item.quantity.plus(1))).let {
@@ -165,20 +191,11 @@ class MainViewModel {
                 }
             }
         }
-
     }
 
     fun updateImage(toComposeImageBitmap: ImageBitmap) {
         _state.update { copy(image = toComposeImageBitmap) }
     }
-
-    fun drawImage(id: String, f: (image: ImageBitmap?) -> Unit) {
-        id.ifEmpty { return }
-        viewModelScope.launch {
-            db.getImage(id)?.let { image ->
-                f(image.image)
-            }
-        }
-    }
 }
+
 

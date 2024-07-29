@@ -17,13 +17,16 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
 import storify.MainViewModel
 import core.model.Strings.localized
+import kotlinx.coroutines.runBlocking
 import java.awt.FileDialog
 import java.awt.Frame
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.file.Paths
 import javax.imageio.ImageIO
+import kotlin.io.path.pathString
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
@@ -58,10 +61,7 @@ actual fun ImagePicker(viewModel: MainViewModel) {
 
 
 ///
-actual fun ImageBitmap?.convert(): ByteArray? {
-    if (this == null) {
-        return null
-    }
+actual fun ImageBitmap.convert(): ByteArray {
     val bufferedImage = BufferedImage(
         width,
         height,
@@ -97,5 +97,7 @@ actual fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
 }
 
 
-
-
+actual fun getFilePath(fileName: String): String {
+    val userHome = System.getProperty("user.home")
+    return Paths.get(userHome, fileName).pathString
+}
