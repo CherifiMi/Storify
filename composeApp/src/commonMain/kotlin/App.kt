@@ -57,6 +57,7 @@ expect fun ImagePicker(viewModel: MainViewModel)
 expect fun ImageBitmap.convert(): ByteArray
 expect fun ByteArray.byteArrayToImageBitmap(): ImageBitmap?
 expect fun getFilePath(fileName: String): String
+expect suspend fun uploadImageToS3(image: ImageBitmap): String
 
 
 @OptIn(ExperimentalCoilApi::class)

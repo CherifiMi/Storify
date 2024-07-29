@@ -13,7 +13,6 @@ import core.util.ext.flip
 import core.util.ext.update
 import core.model.Strings
 import data.MongoDBService
-import data.uploadImageToS3
 import getFilePath
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -21,6 +20,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bson.types.ObjectId
+import uploadImageToS3
 import java.io.File
 
 @Serializable

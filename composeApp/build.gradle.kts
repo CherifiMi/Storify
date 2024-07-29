@@ -32,6 +32,12 @@ kotlin {
             implementation("androidx.work:work-runtime:2.8.1")
 
             implementation(libs.ktor.client.okhttp)
+
+            // Amplify
+            val amplify_version = "1.31.3"
+            implementation("com.amplifyframework:aws-storage-s3:$amplify_version")
+            implementation("com.amplifyframework:aws-auth-cognito:$amplify_version")
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)

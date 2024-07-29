@@ -15,6 +15,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.unit.dp
+import aws.sdk.kotlin.services.s3.S3Client
+import aws.sdk.kotlin.services.s3.model.ObjectCannedAcl
+import aws.sdk.kotlin.services.s3.model.PutObjectRequest
+import aws.smithy.kotlin.runtime.content.ByteStream
 import storify.MainViewModel
 import core.model.Strings.localized
 import kotlinx.coroutines.runBlocking
@@ -25,6 +29,7 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Paths
+import java.util.UUID
 import javax.imageio.ImageIO
 import kotlin.io.path.pathString
 
@@ -100,4 +105,30 @@ actual fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
 actual fun getFilePath(fileName: String): String {
     val userHome = System.getProperty("user.home")
     return Paths.get(userHome, fileName).pathString
+}
+
+actual suspend fun uploadImageToS3(image: ImageBitmap): String {
+    val imageBytes: ByteArray = image.convert()
+    val bucketName = "storifyimagedf020-dev"
+    val contentType = "image/jpeg"
+
+    val s3 = S3Client { region = "eu-west-3" }
+    val keyName = "public/"+UUID.randomUUID().toString() + ".jpg"
+
+    val request = PutObjectRequest {
+        bucket = bucketName
+        key = keyName
+        body = ByteStream.fromBytes(imageBytes)
+        acl = ObjectCannedAcl.PublicRead
+        this.contentType = contentType
+    }
+
+    s3.putObject(request)
+
+
+    val fileUrl = "https://$bucketName.s3.eu-west-3.amazonaws.com/$keyName"
+
+    s3.close()
+    println(fileUrl)
+    return fileUrl
 }

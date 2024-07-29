@@ -1,0 +1,23 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-storifyimages-dev-df020-authRole",
+      "UnauthRoleArn": "arn:aws:iam::905418268352:role/amplify-storifyimages-dev-df020-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::905418268352:role/amplify-storifyimages-dev-df020-authRole",
+      "Region": "eu-west-3",
+      "DeploymentBucketName": "amplify-storifyimages-dev-df020-deployment",
+      "UnauthRoleName": "amplify-storifyimages-dev-df020-unauthRole",
+      "StackName": "amplify-storifyimages-dev-df020",
+      "StackId": "arn:aws:cloudformation:eu-west-3:905418268352:stack/amplify-storifyimages-dev-df020/ca105080-4dde-11ef-b497-06ed59f02bef",
+      "AmplifyAppId": "d1kjgkrod9nxwv"
+    },
+    "categories": {
+      "auth": {
+        "storifyimages93183c81": {}
+      },
+      "storage": {
+        "storifyimage": {}
+      }
+    }
+  }
+}

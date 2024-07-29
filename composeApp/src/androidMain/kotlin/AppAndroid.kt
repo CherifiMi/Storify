@@ -1,5 +1,6 @@
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -20,15 +21,19 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.amplifyframework.core.Amplify
 import core.model.Strings.localized
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import storify.MainViewModel
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import android.content.Context
-import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
-import storify.saveAppState
+import java.io.File
+import java.io.FileOutputStream
+import java.util.UUID
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
@@ -87,4 +92,33 @@ actual fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
 actual fun getFilePath(fileName: String): String = "/data/user/0/org.example.storify/files/$fileName"
 
 
+/////////////////
 
+fun ByteArray.toFile(): File {
+    val file = File.createTempFile("image", ".jpg")
+    FileOutputStream(file).use { out ->
+        out.write(this)
+    }
+    return file
+}
+
+actual suspend fun uploadImageToS3(image: ImageBitmap): String {
+    return withContext(Dispatchers.IO) {
+        val file = image.convert().toFile()
+        val keyName = UUID.randomUUID().toString() + ".jpg"
+
+        Amplify.Storage.uploadFile(
+            keyName,
+            file,
+            {result -> result.key },
+            {error -> Log.e("MITOTEST", "Failed upload", error) }
+        )
+
+
+        val bucketName = "storifyimagedf020-dev"
+        val fileUrl = "https://$bucketName.s3.eu-west-3.amazonaws.com/public/$keyName"
+
+        Log.d("MITOTEST", "File URL: $fileUrl")
+        fileUrl
+    }
+}
