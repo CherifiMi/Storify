@@ -67,6 +67,7 @@ import storify.MainViewModel
 import core.model.Strings.localized
 import data.MongoDBService.getItems
 import domain.model.Item
+import filedir
 import getFilePath
 import kotlinx.coroutines.runBlocking
 import storify.components.AddItemDialog
@@ -116,6 +117,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        filedir = "${this.filesDir}"
         configureAmplify()
 
         if (ActivityCompat.checkSelfPermission(

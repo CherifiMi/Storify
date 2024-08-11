@@ -1,3 +1,4 @@
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
@@ -35,6 +36,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
+
+lateinit var filedir: String
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
@@ -89,7 +92,10 @@ actual fun ByteArray.byteArrayToImageBitmap(): ImageBitmap? {
     }
 }
 
-actual fun getFilePath(fileName: String): String = "/data/user/0/org.example.storify/files/$fileName"
+actual fun getFilePath( fileName: String): String {
+    return "${filedir}/$fileName"
+}
+
 
 
 /////////////////
